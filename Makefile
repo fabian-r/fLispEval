@@ -4,8 +4,8 @@ NAME     ?= fLispEval
 SRCDIR   ?= src
 
 # Use clang by default.
-CC  = clang
-CXX = clang++
+CC  = gcc
+CXX = g++
 
 # Be verbose about the build.
 Q ?= @
