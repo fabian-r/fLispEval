@@ -71,6 +71,7 @@ StackItem eval(Op o, const std::deque<StackItem>& operands)
         case MUL: CHECK_BIN(VAL);
             return StackItem(operands[0].val * operands[1].val);
         case DIV: CHECK_BIN(VAL);
+            require(operands[1].val != 0, "Division by zero");
             return StackItem(operands[0].val / operands[1].val);
         case AND: CHECK_BIN(BV);
             return StackItem(operands[0].bv && operands[1].bv);
@@ -145,10 +146,7 @@ int main(int argc, char *argv[])
                     stack.push_back(eval(o, v));
                 }
                 break;
-            case ' ':
-            case '\n':
-            case '\t':
-            case '(':
+            case ' ': case '\n': case '\t': case '(':
                 break;
             default:
                 require(false, "Invalid input");
