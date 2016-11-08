@@ -12,7 +12,7 @@ void require(bool cond, const char* msg)
     }
 }
 
-enum Op { LEQ, GEQ, EQ, ADD, SUB, MUL, DIV, AND, OR, NOT };
+enum Op { LEQ, LT, GT, GEQ, EQ, ADD, SUB, MUL, DIV, AND, OR, NOT };
 
 struct StackItem
 {
@@ -62,12 +62,24 @@ StackItem eval(Op o, const std::deque<StackItem>& operands)
             return StackItem(operands[0].val <= operands[1].val);
         case GEQ: CHECK_BIN(VAL);
             return StackItem(operands[0].val >= operands[1].val);
+        case LT: CHECK_BIN(VAL);
+            return StackItem(operands[0].val < operands[1].val);
+        case GT: CHECK_BIN(VAL);
+            return StackItem(operands[0].val > operands[1].val);
         case EQ: CHECK_BIN(VAL);
             return StackItem(operands[0].val == operands[1].val);
         case ADD: CHECK_BIN(VAL);
             return StackItem(operands[0].val + operands[1].val);
-        case SUB: CHECK_BIN(VAL);
-            return StackItem(operands[0].val - operands[1].val);
+        case SUB:
+            if (operands.size() == 1) {
+                CHECK_UN(VAL);
+                return StackItem(- operands[0].val);
+            } else if (operands.size() == 2) {
+                CHECK_BIN(VAL);
+                return StackItem(operands[0].val - operands[1].val);
+            } else {
+                require(false, "Invalid number of arguments for operator '-'");
+            }
         case MUL: CHECK_BIN(VAL);
             return StackItem(operands[0].val * operands[1].val);
         case DIV: CHECK_BIN(VAL);
@@ -92,11 +104,23 @@ int main(int argc, char *argv[])
     char chr = std::getchar();
     while (chr != EOF) {
         switch (chr) {
-            case '<': EXPECT('=');
-                stack.emplace_back(Op::LEQ);
+            case '<':
+                chr = std::getchar();
+                if (chr == '=') {
+                    stack.emplace_back(Op::LEQ);
+                } else {
+                    stack.emplace_back(Op::LT);
+                    continue;
+                }
                 break;
-            case '>': EXPECT('=');
-                stack.emplace_back(Op::GEQ);
+            case '>':
+                chr = std::getchar();
+                if (chr == '=') {
+                    stack.emplace_back(Op::GEQ);
+                } else {
+                    stack.emplace_back(Op::GT);
+                    continue;
+                }
                 break;
             case '=':
                 stack.emplace_back(Op::EQ);
